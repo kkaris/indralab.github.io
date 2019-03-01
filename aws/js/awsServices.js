@@ -433,12 +433,15 @@ function checkSignIn(forceLogin) {
 }
 
 // VERIFY USER 
-function verifyUser(accessTokenString, idTokenString) {
+function verifyUser(accessTokenString, idTokenString, forceLogin, return_url) {
   console.log('function verifyUser(accessTokenString, idTokenString)');
   cogIdServiceProvider.getUser({'AccessToken': accessTokenString}, function(err, data) {
     if (err) {
-      let outputNode = document.getElementById(NOTIFY_TAG_ID)
-      notifyUser(outputNode, 'Could not verify user');
+      if (forceLogin) {
+        cancelPageLoad();
+        getTokenFromAuthEndpoint(return_url)
+      }
+      notifyUser(document.getElementById(NOTIFY_TAG_ID), 'Could not verify user');
       return false;
     } else {
       // console.log('User meta data from cogIdServiceProvider.getUser()');
