@@ -37,6 +37,7 @@ var IDENTITY_POOL_ID = '';
 var STATE_COOKIE_NAME = '';
 var ACCESSTOKEN_COOKIE_NAME = '';
 var IDTOKEN_COOKIE_NAME = '';
+var CUSTOM_SCOPE = '';
 
 function setEnv(env) {
   if (env) ENV = env;
@@ -51,6 +52,9 @@ function setEnv(env) {
       STATE_COOKIE_NAME = INDRALAB_STATE_COOKIE_NAME;
       ACCESSTOKEN_COOKIE_NAME = INDRALAB_ACCESSTOKEN_COOKIE_NAME;
       IDTOKEN_COOKIE_NAME = INDRALAB_IDTOKEN_COOKIE_NAME;
+      CUSTOM_SCOPE = CUSTOM_SCOPE_INDRALAB;
+      FALLBACK_URL = INDRALAB_FALLBACK_URL;
+      return true;
   } else if (ENV = 'emmaa') {
     console.log('case EMMAA')
       APP_CLIENT_ID = APP_CLIENT_ID_EMMAA_POOL;
@@ -62,11 +66,16 @@ function setEnv(env) {
       STATE_COOKIE_NAME = EMMAA_STATE_COOKIE_NAME;
       ACCESSTOKEN_COOKIE_NAME = EMMAA_ACCESSTOKEN_COOKIE_NAME;
       IDTOKEN_COOKIE_NAME = EMMAA_IDTOKEN_COOKIE_NAME;
+      CUSTOM_SCOPE = CUSTOM_SCOPE_EMMAA;
+      FALLBACK_URL = EMMAA_FALLBACK_URL;
+      return true;
   } else {
     console.log('No environment set')
+    return false;
   }
 }
 
+// Delete once the client pages set the environment themselves
 $(document).ready(function(){
   setEnv() // Temporary usage to not break pages dependent on previous implemenations
 })
@@ -77,9 +86,11 @@ var NOTIFY_TAG_ID = 'status-notify';
 var EMMAA_STATE_COOKIE_NAME = 'emmaaStateCookie=';
 var EMMAA_ACCESSTOKEN_COOKIE_NAME = 'emmaaAccessCookie=';
 var EMMAA_IDTOKEN_COOKIE_NAME = 'emmaaIdCookie=';
+var EMMAA_FALLBACK_URL = 'https://indralab.github.io/emmaa/dashboard';
 var INDRALAB_STATE_COOKIE_NAME = 'indralabStateCookie=';
 var INDRALAB_ACCESSTOKEN_COOKIE_NAME = 'indralabAccessCookie=';
-var INDRALAB_IDTOKEN_COOKIE_NAME = 'indralabIdCookie=';
+var INDRALAB_IDTOKEN_COOKIE_NAME = 'indradb-authorization=';
+var INDRALAB_FALLBACK_URL = 'https://db.indra.bio';
 var STATE_VALUE = '' // State value to secure requests to cognito endpoints
 var ACCESS_TOKEN_STRING = ''; // access token string
 var ACCESS_TOKEN = {}; // access token
@@ -101,6 +112,8 @@ var USER_POOL_ARN_EMMAA = 'arn:aws:cognito-idp:us-east-1:292075781285:userpool/u
 var USER_POOL_ARN_INDRALAB = 'arn:aws:cognito-idp:us-east-1:292075781285:userpool/us-east-1_ZROvpv8jf';
 var IDENTITY_POOL_ID_EMMAA = 'us-east-1:76854655-a365-4e69-b080-0f8ca94a46fc';
 var IDENTITY_POOL_ID_INDRALAB = ''; // NOT SET UP YET
+var CUSTOM_SCOPE_EMMAA = '+https://s3.console.aws.amazon.com/s3/buckets/emmaa/results.read';
+var CUSTOM_SCOPE_INDRALAB = '';
 AWS.config.region = 'us-east-1' // Set region
 
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
@@ -328,9 +341,8 @@ function getTokenFromAuthEndpoint(currentUrl) {
   redirect = 'redirect_uri=' + currentUrl;
   console.log('redirect_uri set to: ' + redirect);
   state = 'state=' + STATE_VALUE;
-  // cutom_scope = 'https://s3.console.aws.amazon.com/s3/buckets/emmaa/results.read'
-  // scope = 'scope=aws.cognito.signin.user.admin+openid+profile+' + cutom_scope;
-  scope = 'scope=aws.cognito.signin.user.admin+openid+profile';
+  custom_scope = CUSTOM_SCOPE;
+  scope = 'scope=aws.cognito.signin.user.admin+openid+profile' + cutom_scope;
   let get_url = base_url + resp_type + '&' + client_id + '&' + redirect + '&' + state + '&' + scope;
   console.log('get_url=' + get_url);
   window.location.replace(get_url) // Redirect
