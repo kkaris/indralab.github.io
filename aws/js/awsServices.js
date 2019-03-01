@@ -150,7 +150,7 @@ function _writeCookie(cookieName, value, hours) {
   console.log('function _writeCookie(cookieName, value, hours)')
   if (hours) {
     let _hours = 0;
-    maxHours = 12;
+    maxHours = 24;
     if (hours > maxHours) {
       _hours = maxHours;
     } else {
@@ -198,8 +198,8 @@ function getDictFromUrl(url) {
 
   returnArray.push(result)
   returnArray.push(usedSplit)
-  console.log('returnArray: ')
-  console.log(returnArray)
+  // console.log('returnArray: ')
+  // console.log(returnArray)
   return returnArray;
 }
 
@@ -334,7 +334,7 @@ function getTokenFromAuthEndpoint(currentUrl) {
   console.log('function getTokenFromAuthEndpoint(currentUrl)')
   STATE_VALUE = _getNewStateValue();
   // console.log('current STATE_VALUE: ' + STATE_VALUE)
-  _writeCookie(STATE_COOKIE_NAME, STATE_VALUE, 1)
+  _writeCookie(STATE_COOKIE_NAME, STATE_VALUE, 24)
   base_url = AUTH_ENDPOINT_BASE_URL;
   resp_type = 'response_type=token';
   client_id='client_id=' + APP_CLIENT_ID;
@@ -353,7 +353,7 @@ function signIn(uname, pwd) {
   console.log('Sign in button')
   cogIdServiceProvider.initiateAuth({
     'AuthFlow': 'USER_PASSWORD_AUTH', // What type of authentication to use
-    'ClientId': APP_CLIENT_ID, // AppClientId for UserPool??
+    'ClientId': APP_CLIENT_ID, // AppClientId for UserPool
     
     AuthParameters: {
       'USERNAME': uname,
@@ -439,9 +439,9 @@ function verifyUser(accessTokenString, idTokenString) {
       let outputNode = document.getElementById(NOTIFY_TAG_ID)
       notifyUser(outputNode, 'Hello ' + username);
       ACCESS_TOKEN_STRING = accessTokenString;
-      _writeCookie(ACCESSTOKEN_COOKIE_NAME, ACCESS_TOKEN_STRING, 1);
+      _writeCookie(ACCESSTOKEN_COOKIE_NAME, ACCESS_TOKEN_STRING, 24);
       ID_TOKEN_STRING = idTokenString;
-      _writeCookie(IDTOKEN_COOKIE_NAME, ID_TOKEN_STRING, 1);
+      _writeCookie(IDTOKEN_COOKIE_NAME, ID_TOKEN_STRING, 24);
       USER_SIGNED_IN = true
       addUserToIdentityCredentials(ID_TOKEN_STRING) // Add user to identity pool 
       return true;
