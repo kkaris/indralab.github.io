@@ -385,42 +385,49 @@ function responseResolve(err, data) {
 function checkSignIn(forceLogin) {
   console.log('function checkSignIn(forceLogin)')
   STATE_VALUE = _readCookie(STATE_COOKIE_NAME);
+  ID_TOKEN_STRING = _readCookie(IDTOKEN_COOKIE_NAME)
+  ACCESS_TOKEN_STRING = _readCookie(ACCESSTOKEN_COOKIE_NAME)
   var return_url = window.location.href;
   console.log('Return url: ' + return_url);
   let dict_split = getDictFromUrl(return_url);
 
-  // No dict returned. Probably at first visit to page
-  if (!dict_split) {
-    if (forceLogin) {
-      alert(SIGN_IN_ALERT_MESSAGE)
-      getTokenFromAuthEndpoint(return_url)
-    }
-    else return;
-  } else if (dict_split && dict_split[0]['state'] != STATE_VALUE) {
-    console.log('State Value does not match');
-    if (forceLogin) {
-      alert(SIGN_IN_ALERT_MESSAGE)
-      getTokenFromAuthEndpoint(return_url)
-    }
-    else {
-      let outputNode = document.getElementById(NOTIFY_TAG_ID)
-      notifyUser(outputNode, 'State Value does not match');
-      return;
-    }
-  } else if (dict_split && dict_split[0]['access_token']) {
-    // Token flow
-    console.log('token from authorization-endpoint')
-    verifyUser(dict_split[0]['access_token'], dict_split[0]['id_token'])
-    return true;
+  // If tokens, verify them
+  if (ID_TOKEN_STRING ||  ACCESS_TOKEN_STRING) {
+    verifyUser(ACCESS_TOKEN_STRING, ID_TOKEN_STRING)
   } else {
-    console.log('Could not verify authentication flow...')
-    if (forceLogin) {
-      alert(SIGN_IN_ALERT_MESSAGE)
-      getTokenFromAuthEndpoint(return_url)
+
+    // No dict returned. Probably at first visit to page
+    if (!dict_split) {
+      if (forceLogin) {
+        cancelPageLoad();
+        getTokenFromAuthEndpoint(return_url);
+      }
+      else return;
+    } else if (dict_split && dict_split[0]['state'] != STATE_VALUE) {
+      console.log('State Value does not match');
+      if (forceLogin) {
+        cancelPageLoad();
+        getTokenFromAuthEndpoint(return_url)
+      } else {
+        let outputNode = document.getElementById(NOTIFY_TAG_ID)
+        notifyUser(outputNode, 'State Value does not match');
+        return;
+      }
+    } else if (dict_split && dict_split[0]['access_token']) {
+      // Token flow
+      console.log('token from authorization-endpoint')
+      verifyUser(dict_split[0]['access_token'], dict_split[0]['id_token'])
+      return true;
     } else {
-      let outputNode = document.getElementById(NOTIFY_TAG_ID)
-      notifyUser(document.getElementById('status-notify'), 'Unable to retreive session/session expired. Please log in again.');
-      return;
+      console.log('Could not verify authentication flow...')
+      if (forceLogin) {
+        cancelPageLoad();
+        getTokenFromAuthEndpoint(return_url)
+      } else {
+        let outputNode = document.getElementById(NOTIFY_TAG_ID)
+        notifyUser(document.getElementById('status-notify'), 'Unable to retreive session/session expired. Please log in again.');
+        return;
+      }
     }
   }
 }
