@@ -486,9 +486,14 @@ function addUserToIdentityCredentials(userIdToken) {
   identityId = AWS.config.credentials.identityId;
 }
 
-function grabJSON (url, callback) {
+function grabJSON(url, callback) {
   return $.ajax({url: url, dataType: "json"});
 };
+
+function cancelPageLoad() {
+  console.log('function cancelPageLoad ()')
+  window.stop();
+}
 
 // Can be used when something is public on S3
 function getPublicJson(bucket, key) {
