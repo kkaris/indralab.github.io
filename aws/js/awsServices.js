@@ -329,8 +329,7 @@ function listObjectsInBucket(tableBody, s3Interface, bucket, prefix, maxKeys, en
   });
 };
 
-// FIXME: redirect should be variable: could be index.html or model.html
-function getTokenFromAuthEndpoint(currentUrl) {
+function getTokenFromAuthEndpoint(currentUrl, redirectUrl) {
   console.log('function getTokenFromAuthEndpoint(currentUrl)')
   STATE_VALUE = _getNewStateValue();
   // console.log('current STATE_VALUE: ' + STATE_VALUE)
@@ -338,7 +337,9 @@ function getTokenFromAuthEndpoint(currentUrl) {
   base_url = AUTH_ENDPOINT_BASE_URL;
   resp_type = 'response_type=token';
   client_id='client_id=' + APP_CLIENT_ID;
-  redirect = 'redirect_uri=' + currentUrl;
+  if (redirectUrl) redirect = 'redirect_uri=' + redirectUrl;
+  else if (currentUrl) redirect = 'redirect_uri=' + currentUrl;
+  else redirect = 'redirect_uri=' + FALLBACK_URL;
   console.log('redirect_uri set to: ' + redirect);
   state = 'state=' + STATE_VALUE;
   custom_scope = CUSTOM_SCOPE;
