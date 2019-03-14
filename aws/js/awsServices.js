@@ -203,6 +203,20 @@ function getDictFromUrl(url) {
   return returnArray;
 }
 
+function _toCookieString(queryDict) {
+  console.log('function _toCookieString(queryDict)')
+  var cookieString = ''
+  for (key in queryDict) {
+    if (cookieString.length == 0) cookieString = key + '_eq_' + queryDict[key];
+  else cookieString = cookieString + '_and_' + key + '_eq_' + queryDict[key];
+  }
+  return cookieString;
+}
+
+function _fromCookieStringToQuery(cookieString) {
+  return cookieString.replace(/_eq_/g, '=').replace(/_and_/g, '&');
+}
+
 function checkLatestModelsUpdate() {
   //                               mode, tableBody, testResultTableBody, s3Interface,      bucket, model, prefix, maxKeys, endsWith
   listObjectsInBucketUnAuthenticated('modelsLastUpdated', null, null, new AWS.S3(), EMMMAA_BUCKET, null, 'models', 1000, '.pkl')
@@ -343,10 +357,12 @@ function getTokenFromAuthEndpoint(currentUrl, redirectUrl) {
   console.log('redirect_uri set to: ' + redirect);
   state = 'state=' + STATE_VALUE;
   custom_scope = CUSTOM_SCOPE;
-  scope = 'scope=aws.cognito.signin.user.admin+openid+profile' + cutom_scope;
+  scope = 'scope=aws.cognito.signin.user.admin+openid+profile' + custom_scope;
+  // scope = 'scope=aws.cognito.signin.user.admin+openid+profile';
   let get_url = base_url + resp_type + '&' + client_id + '&' + redirect + '&' + state + '&' + scope;
   console.log('get_url=' + get_url);
-  window.location.replace(get_url) // Redirect
+  console.log('HIT window.location.replace(get_url)')
+  // window.location.replace(get_url) // Redirect
 }
 
 // Signing in using username/password, return JWTs
@@ -492,7 +508,8 @@ function grabJSON(url, callback) {
 
 function cancelPageLoad() {
   console.log('function cancelPageLoad ()')
-  window.stop();
+  console.log('HIT window.stop()')
+  // window.stop();
 }
 
 // Can be used when something is public on S3
