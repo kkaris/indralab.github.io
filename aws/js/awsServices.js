@@ -203,20 +203,6 @@ function getDictFromUrl(url) {
   return returnArray;
 }
 
-function _toCookieString(queryDict) {
-  console.log('function _toCookieString(queryDict)')
-  var cookieString = ''
-  for (key in queryDict) {
-    if (cookieString.length == 0) cookieString = key + '_eq_' + queryDict[key];
-  else cookieString = cookieString + '_and_' + key + '_eq_' + queryDict[key];
-  }
-  return cookieString;
-}
-
-function _fromCookieStringToQuery(cookieString) {
-  return cookieString.replace(/_eq_/g, '=').replace(/_and_/g, '&');
-}
-
 function checkLatestModelsUpdate() {
   //                               mode, tableBody, testResultTableBody, s3Interface,      bucket, model, prefix, maxKeys, endsWith
   listObjectsInBucketUnAuthenticated('modelsLastUpdated', null, null, new AWS.S3(), EMMMAA_BUCKET, null, 'models', 1000, '.pkl')
