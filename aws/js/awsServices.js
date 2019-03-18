@@ -351,8 +351,7 @@ function getTokenFromAuthEndpoint(currentUrl, redirectUrl) {
   // scope = 'scope=aws.cognito.signin.user.admin+openid+profile';
   let get_url = base_url + resp_type + '&' + client_id + '&' + redirect + '&' + state + '&' + scope;
   console.log('get_url=' + get_url);
-  console.log('HIT window.location.replace(get_url)')
-  // window.location.replace(get_url) // Redirect
+  window.location.replace(get_url) // Redirect
 }
 
 // Signing in using username/password, return JWTs
