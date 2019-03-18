@@ -433,7 +433,7 @@ function checkSignIn(forceLogin) {
 }
 
 // VERIFY USER 
-function verifyUser(accessTokenString, idTokenString, forceLogin, return_url) {
+function verifyUser(accessTokenString, idTokenString, forceLogin, return_url, msg) {
   console.log('function verifyUser(accessTokenString, idTokenString)');
   cogIdServiceProvider.getUser({'AccessToken': accessTokenString}, function(err, data) {
     if (err) {
@@ -448,7 +448,8 @@ function verifyUser(accessTokenString, idTokenString, forceLogin, return_url) {
       // console.log(data);
       username = data.Username;
       let outputNode = document.getElementById(NOTIFY_TAG_ID)
-      notifyUser(outputNode, 'Hello ' + username);
+      if (msg) notifyUser(outputNode, msg);
+      else notifyUser(outputNode, 'Hello ' + username);
       ACCESS_TOKEN_STRING = accessTokenString;
       _writeCookie(ACCESSTOKEN_COOKIE_NAME, ACCESS_TOKEN_STRING, 24);
       ID_TOKEN_STRING = idTokenString;
