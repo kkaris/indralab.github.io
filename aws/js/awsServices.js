@@ -386,54 +386,49 @@ function responseResolve(err, data) {
 }
 
 // CHECK SIGN IN
-// this function should check if there is a session active and get the user pool tokens for that session
+// this function checks if there are tokens, if they are valid and either shows the user logged in or (if enforced) redirects user to login
 function checkSignIn(forceLogin) {
   console.log('function checkSignIn(forceLogin)')
   STATE_VALUE = _readCookie(STATE_COOKIE_NAME);
   ID_TOKEN_STRING = _readCookie(IDTOKEN_COOKIE_NAME)
   ACCESS_TOKEN_STRING = _readCookie(ACCESSTOKEN_COOKIE_NAME)
-  var return_url = window.location.href;
+  let dict_split = getDictFromUrl(window.location.href);
+  if (dict_split) var return_url = window.location.href.split(dict_split[1]);
+  else var return_url = window.location.href;
   console.log('Return url: ' + return_url);
-  let dict_split = getDictFromUrl(return_url);
 
-  // If tokens, verify them
-  if (ID_TOKEN_STRING ||  ACCESS_TOKEN_STRING) {
-    verifyUser(ACCESS_TOKEN_STRING, ID_TOKEN_STRING)
-  } else {
-
-    // No dict returned. Probably at first visit to page
-    if (!dict_split) {
-      if (forceLogin) {
-        cancelPageLoad();
-        getTokenFromAuthEndpoint(return_url);
-      }
-      else return;
-    } else if (dict_split && dict_split[0]['state'] != STATE_VALUE) {
-      console.log('State Value does not match');
-      if (forceLogin) {
-        cancelPageLoad();
-        getTokenFromAuthEndpoint(return_url)
-      } else {
-        let outputNode = document.getElementById(NOTIFY_TAG_ID)
-        notifyUser(outputNode, 'State Value does not match');
-        return;
-      }
-    } else if (dict_split && dict_split[0]['access_token']) {
-      // Token flow
-      console.log('token from authorization-endpoint')
-      verifyUser(dict_split[0]['access_token'], dict_split[0]['id_token'])
-      return true;
+  // Check if tokens in fragment
+  if (dict_split && dict_split[0]['state'] != STATE_VALUE) {
+    console.log('State Value does not match');
+    if (forceLogin) {
+      // Non-matching state values could be casued by traffic interception!
+      cancelPageLoad();
+      getTokenFromAuthEndpoint(return_url)
     } else {
-      console.log('Could not verify authentication flow...')
-      if (forceLogin) {
-        cancelPageLoad();
-        getTokenFromAuthEndpoint(return_url)
-      } else {
-        let outputNode = document.getElementById(NOTIFY_TAG_ID)
-        notifyUser(document.getElementById('status-notify'), 'Unable to retreive session/session expired. Please log in again.');
-        return;
-      }
+      let outputNode = document.getElementById(NOTIFY_TAG_ID)
+      notifyUser(outputNode, 'State Value does not match');
     }
+  } else if (dict_split && 
+             dict_split[0]['state'] == STATE_VALUE && 
+             dict_split[0]['access_token']) {
+    verifyUser(dict_split[0]['access_token'], dict_split[0]['id_token'])
+    return true;
+  }
+
+  // If no fragment tokens, check if tokens are in cookie
+  if (ID_TOKEN_STRING &&  ACCESS_TOKEN_STRING) {
+    verifyUser(ACCESS_TOKEN_STRING, ID_TOKEN_STRING)
+    return true;
+  }
+
+  // If all fails, do nothing or redirect to login
+  if (forceLogin) {
+    cancelPageLoad();
+    getTokenFromAuthEndpoint(return_url)
+  } else {
+    let outputNode = document.getElementById(NOTIFY_TAG_ID)
+    notifyUser(document.getElementById('status-notify'), 'Unable to retreive session/session expired. Please log in again.');
+    return;
   }
 }
 
