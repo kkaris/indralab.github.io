@@ -168,6 +168,10 @@ function _writeCookie(cookieName, value, hours) {
   document.cookie = cookieString;
 }
 
+function _deleteCookie(cookieName) {
+  document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+}
+
 // CHANGE TEXT
 function notifyUser(outputNode, outputText) {
   // Add other things here
